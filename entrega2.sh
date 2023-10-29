@@ -57,10 +57,11 @@ programa() {
 }
 
 nattch(){
-    #echo $(ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
-    #PID=$( ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
+  #echo "nattch $1"
+    echo $(ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
+    PID=$( ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
 
-    #nattchvar="-p $PID"
+    nattchvar="-p $PID"
   if [ $# -eq 0 ]; then
     echo "La función 'prog' fue llamada sin argumentos."
     exit 1
@@ -76,13 +77,13 @@ nattch(){
     $(mkdir scdebug )
   fi
 
-  if [ -d "scdebug/$1" ]; then # comprobar que la carpeta scdebug/$1 existe
-    echo "La carpeta $1 existe."
-  else
-    echo "La carpeta $1 no existe."
-    echo "mkdir scdebug/$1"
-    $(mkdir scdebug/$1 )
-  fi
+ if [ -d "scdebug/$1" ]; then # comprobar que la carpeta scdebug/$1 existe
+   echo "La carpeta $1 existe."
+ else
+   echo "La carpeta $1 no existe."
+   echo "mkdir scdebug/$1"
+   $(mkdir scdebug/$1 )
+ fi
 
     echo $(ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
     PID=$( ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
@@ -90,8 +91,8 @@ nattch(){
     nattchvar="-p $PID"
 
   uuid=$(uuidgen)
-  echo "strace $stovar $nattchvar -o scdebug/$1/trace_$uuid.txt "
-  $(strace $stovar $nattchvar -o scdebug/$1/trace_$uuid.txt )
+  echo "strace $stovar $nattchvar -o scdebug/$1/trace_$uuid.txt &"
+  $(strace $stovar $nattchvar -o scdebug/$1/trace_$uuid.txt &)
 }
 
 trace(){
@@ -136,11 +137,13 @@ while [ "$1" != "" ]; do
           echo "sto es $stovar"
         ;;   
         -nattch )  
-        #while [ "$2" != "-h" |  "$2" != "prog" |  "$2" != "-sto"      ]; do
-        #nattch "$2"
-        #done     
+          while [ "$2" != "-h" ] && [ "$2" != "prog" ] && [ "$2" != "-sto" ] && [ "$2" != "" ]; do
             nattch "$2"
-            echo "nattch es $nattchvar"
+            shift
+          done
+
+            #nattch "$2"
+            #echo "nattchvar es $nattchvar"
             ;;
         * )   if [ "$leelista" -ne 1 -a "$leeProg" -ne 2 ]; then
 		    leeProg=1
@@ -156,7 +159,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-trace # mostrar los procesos trazados
+#trace # mostrar los procesos trazados
 
 if [ -n "$lista" ]; then
     echo "Lista es $lista"

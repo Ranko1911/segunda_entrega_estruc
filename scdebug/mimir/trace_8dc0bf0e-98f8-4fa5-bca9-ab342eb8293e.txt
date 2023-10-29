@@ -1,0 +1,4 @@
+restart_syscall(<... resuming interrupted read ...>) = 0
+write(1, "Espera completada.\n", 19)    = 19
+exit_group(0)                           = ?
++++ exited with 0 +++
