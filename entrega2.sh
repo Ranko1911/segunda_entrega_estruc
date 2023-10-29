@@ -30,29 +30,16 @@ usage()
   echo "Usage: scdebug [-h] [-sto arg] [-v | -vall] [-k] [prog [arg …] ] [-nattch progtoattach …] [-pattch pid1 … ]"
 }
 
+
+usage2() 
+{
+  echo "ocpcion no valida"
+  usage
+}
+
+
 programa() {
-  if [ $# -eq 0 ]; then
-    echo "La función 'prog' fue llamada sin argumentos."
-    exit 1
-  else
-    echo "La función 'prog' fue llamada con argumentos: $@"
-  fi
-
-  if [ -d "scdebug" ]; then # comprobar que la carpeta scdebug existe
-    echo "La carpeta scdebug existe."
-  else
-    echo "La carpeta scdebug no existe."
-    echo "mkdir scdebug"
-    $(mkdir scdebug )
-  fi
-
-  if [ -d "scdebug/$1" ]; then # comprobar que la carpeta scdebug/$1 existe
-    echo "La carpeta $1 existe."
-  else
-    echo "La carpeta $1 no existe."
-    echo "mkdir scdebug/$1"
-    $(mkdir scdebug/$1 )
-  fi
+  primeraBarrerra $1
 
   uuid=$(uuidgen)
   echo "strace $stovar  -o scdebug/$1/trace_$uuid.txt $@"
@@ -65,28 +52,7 @@ nattch(){
     PID=$( ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
 
     nattchvar="-p $PID"
-  if [ $# -eq 0 ]; then
-    echo "La función 'prog' fue llamada sin argumentos."
-    exit 1
-  else
-      echo "La función 'prog' fue llamada con argumentos: $@"
-  fi
-
-  if [ -d "scdebug" ]; then # comprobar que la carpeta scdebug existe
-    echo "La carpeta scdebug existe."
-  else
-    echo "La carpeta scdebug no existe."
-    echo "mkdir scdebug"
-    $(mkdir scdebug )
-  fi
-
- if [ -d "scdebug/$1" ]; then # comprobar que la carpeta scdebug/$1 existe
-   echo "La carpeta $1 existe."
- else
-   echo "La carpeta $1 no existe."
-   echo "mkdir scdebug/$1"
-   $(mkdir scdebug/$1 )
- fi
+  primeraBarrerra $1
 
     echo $(ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
     PID=$( ps aux | grep $1 | sort -k 4 | tail -n 4 | head -n 1 | tr -s ' ' | cut -d ' ' -f2  )
@@ -143,8 +109,8 @@ kill2(){ # funciona en maquina ajena, pero no en la local
 
 }
 
-pattch(){
-  if [ $# -eq 0 ]; then
+primeraBarrerra(){
+if [ $# -eq 0 ]; then
     echo "La función 'prog' fue llamada sin argumentos."
     exit 1
   else
@@ -166,8 +132,12 @@ pattch(){
    echo "mkdir scdebug/$1"
    $(mkdir scdebug/$1 )
  fi
+}
 
-  $(strace $stovar -p $1 -o scdebug/$1/trace_$uuid.txt)
+pattch(){
+primeraBarrerra $1
+
+  $(strace $stovar -p $1 -o scdebug/$1/trace_$uuid.txt &)
 }
 
 while [ "$1" != "" ]; do
@@ -211,7 +181,7 @@ while [ "$1" != "" ]; do
             elif [ "$leelista" -eq 1 ]; then
                 lista+="$1 "
             else
-                usage
+                usage2
                 exit 1
             fi
         ;;             
