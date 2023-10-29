@@ -122,7 +122,7 @@ trace(){
   done <<< "$ps_output"
 }
 
-kill(){ # funciona en maquina ajena, pero no en la local
+kill2(){ # funciona en maquina ajena, pero no en la local
   ps_output=$(ps -U $USER -o pid,comm --no-header)
 
   while read -r line; do
@@ -133,9 +133,9 @@ kill(){ # funciona en maquina ajena, pero no en la local
       tracer_pid=$(awk -F'\t' '/TracerPid/{print $2}' "/proc/$pid/status")
       if [ "$tracer_pid" -ne 0 ]; then
         echo "kill $tracer_pid"
-        kill -s SIGKILL $tracer_pid
+        kill -s SIGKILL $tracer_pid &> /dev/null
         echo "kill -s SIGKILL $pid"
-        kill -s SIGKILL $pid
+        kill -s SIGKILL $pid &> /dev/null
       fi
     fi
   done <<< "$ps_output"
@@ -168,11 +168,12 @@ while [ "$1" != "" ]; do
             #echo "nattchvar es $nattchvar"
             ;;
             -k | --kill )  
-              kill
+              kill2
+              shift
               ;;
         * )   if [ "$leelista" -ne 1 -a "$leeProg" -ne 2 ]; then
-		    leeProg=1
-		    listaProg+="$1 "
+		      leeProg=1
+		      listaProg+="$1 "
             elif [ "$leelista" -eq 1 ]; then
                 lista+="$1 "
             else
