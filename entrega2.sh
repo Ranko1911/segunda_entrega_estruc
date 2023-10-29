@@ -10,6 +10,7 @@ leeProg=0
 listaProg=
 stovar=
 nattchvar=
+pattchvar="-p " 
 
 ##### Constantes
 TITLE="Información del sistema para $HOSTNAME" # $HOSTNAME muestra el nombre del host
@@ -142,6 +143,33 @@ kill2(){ # funciona en maquina ajena, pero no en la local
 
 }
 
+pattch(){
+  if [ $# -eq 0 ]; then
+    echo "La función 'prog' fue llamada sin argumentos."
+    exit 1
+  else
+      echo "La función 'prog' fue llamada con argumentos: $@"
+  fi
+
+  if [ -d "scdebug" ]; then # comprobar que la carpeta scdebug existe
+    echo "La carpeta scdebug existe."
+  else
+    echo "La carpeta scdebug no existe."
+    echo "mkdir scdebug"
+    $(mkdir scdebug )
+  fi
+
+ if [ -d "scdebug/$1" ]; then # comprobar que la carpeta scdebug/$1 existe
+   echo "La carpeta $1 existe."
+ else
+   echo "La carpeta $1 no existe."
+   echo "mkdir scdebug/$1"
+   $(mkdir scdebug/$1 )
+ fi
+
+  $(strace $stovar -p $1 -o scdebug/$1/trace_$uuid.txt)
+}
+
 while [ "$1" != "" ]; do
     case $1 in
         -h | --help )           
@@ -167,10 +195,16 @@ while [ "$1" != "" ]; do
             #nattch "$2"
             #echo "nattchvar es $nattchvar"
             ;;
-            -k | --kill )  
-              kill2
-              shift
-              ;;
+        -k | --kill )  
+          kill2
+          shift
+          ;;
+        -pattch )  
+          while [ "$2" != "-h" ] && [ "$2" != "prog" ] && [ "$2" != "-sto" ] && [ "$2" != "" ]; do
+            pattch "$2"
+            shift
+          done
+          ;;
         * )   if [ "$leelista" -ne 1 -a "$leeProg" -ne 2 ]; then
 		      leeProg=1
 		      listaProg+="$1 "
