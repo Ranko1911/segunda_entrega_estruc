@@ -25,6 +25,9 @@ TEXT_RED=$(tput setaf 1) # tput setaf 1 hace que el texto sea rojo
 TEXT_RESET=$(tput sgr0) # tput sgr0 hace que el texto sea normal
 TEXT_ULINE=$(tput sgr 0 1) # tput sgr 0 1 hace que el texto sea subrayado
 
+##### Funciones
+
+# funcion ayuda
 usage() 
 {
   echo "Usage: scdebug [-h] [-sto arg] [-v | -vall] [-k] [prog [arg …] ] [-nattch progtoattach …] [-pattch pid1 … ]"
@@ -37,7 +40,7 @@ usage2()
   usage
 }
 
-
+# funcion base
 programa() {
   primeraBarrerra $1
 
@@ -109,8 +112,9 @@ kill2(){ # funciona en maquina ajena, pero no en la local
 
 }
 
+# comprobacion y creacion de carpetas para los archivos de traza
 primeraBarrerra(){
-if [ $# -eq 0 ]; then
+  if [ $# -eq 0 ]; then
     echo "La función 'prog' fue llamada sin argumentos."
     exit 1
   else
@@ -135,10 +139,31 @@ if [ $# -eq 0 ]; then
 }
 
 pattch(){
-primeraBarrerra $1
-
+  primeraBarrerra $1
   $(strace $stovar -p $1 -o scdebug/$1/trace_$uuid.txt &)
 }
+
+
+# pruebas de ejecucion
+check_uuidgen_availability() {
+    if command -v uuidgen &> /dev/null; then
+        echo "uuidgen está disponible en el sistema."
+    else
+        echo "uuidgen no está disponible en el sistema."
+    fi
+}
+
+check_strace_availability() {
+    if command -v strace &> /dev/null; then
+        echo "strace está disponible en el sistema."
+    else
+        echo "strace no está disponible en el sistema."
+        exit 1
+    fi
+}
+
+
+check_strace_availability
 
 while [ "$1" != "" ]; do
     case $1 in
